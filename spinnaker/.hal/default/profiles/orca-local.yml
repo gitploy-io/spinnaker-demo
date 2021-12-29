@@ -1,0 +1,28 @@
+webhook:
+  preconfigured:
+    - label: Update Deployment status
+      type: updateDeploymentStatus
+      enabled: true
+      description: Update the deployment status.
+      method: POST
+      url: https://api.github.com/repos/${ templateVariables.owner }/${ templateVariables.repo }/deployments/${ trigger["payload"]["deployment_id"]}/statuses
+      customHeaders:
+        # GitHub token
+        Authorization:
+          - token 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
+        Content-Type:
+          - application/json
+      payload: |-
+        {
+          "description": "${parameterValues['description']}",
+          "state": "${parameterValues['state']}",
+          "logUrl": "http://localhost:9000/#/applications/${execution.application}/executions/details/${execution.id}"
+        }
+      parameters:
+        - label: Description
+          name: description
+          type: string
+        - label: State
+          name: state
+          type: string
+          description: The state can be one of "queued", "in_progress", "success", "failure"
