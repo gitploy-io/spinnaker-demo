@@ -1,0 +1,6 @@
+# deploy.yml
+envs:
+  - name: dev
+    auto_merge: false
+    # To avoid the context verification.
+    # required_context: []
