@@ -8,16 +8,15 @@ webhook:
       url: https://api.github.com/repos/${ parameterValues['owner'] }/${ parameterValues['repo'] }/deployments/${ parameterValues['deployment_id'] }/statuses
       customHeaders:
         # GitHub token
-        # TODO: remove the GitHub token
         Authorization:
-          - token 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
+          - token GITHUB_TOKEN
         Content-Type:
           - application/json
       payload: |-
         {
           "description": "${parameterValues['description']}",
           "state": "${parameterValues['state']}",
-          "logUrl": "http://localhost:9000/#/applications/${execution.application}/executions/details/${execution.id}"
+          "log_url": "http://localhost:9000/#/applications/${execution.application}/executions/details/${execution.id}"
         }
       parameters:
         - label: GitHub Owner
