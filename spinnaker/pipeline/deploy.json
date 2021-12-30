@@ -50,7 +50,7 @@
   "limitConcurrent": true,
   "name": "Deploy to ${ templateVariables.environment }",
   "parameterConfig": [],
-  "spelEvaluator": "v4",
+  "spelEvaluator": "v3",
   "stages": [
    {
     "account": "spinnaker",
