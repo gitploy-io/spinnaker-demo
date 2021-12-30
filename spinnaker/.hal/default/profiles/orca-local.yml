@@ -8,6 +8,7 @@ webhook:
       url: https://api.github.com/repos/${ parameterValues['owner'] }/${ parameterValues['repo'] }/deployments/${ parameterValues['deployment_id'] }/statuses
       customHeaders:
         # GitHub token
+        # TODO: remove the GitHub token
         Authorization:
           - token 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
         Content-Type:
@@ -25,7 +26,7 @@ webhook:
         - label: GitHub Repo
           name: repo
           type: string
-        - lable: GitHub Deployment ID
+        - lable: Deployment ID
           name: deployment_id
           type: string
         - label: Description

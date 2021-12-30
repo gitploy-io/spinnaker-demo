@@ -1,0 +1,278 @@
+{
+ "id": "deployTemplate",
+ "metadata": {
+  "name": "Deploy V1",
+  "description": "Deploy to Kubernetes.",
+  "owner": "noah.lee@gitploy.io",
+  "scopes": ["global"]
+ },
+ "schema": "v2",
+ "variables": [
+  {
+    "type": "string",
+    "defaultValue": "",
+    "description": "The GitHub owner",
+    "name": "owner"
+  },
+  {
+    "type": "string",
+    "defaultValue": "",
+    "description": "The GitHub repository",
+    "name": "repo"
+  },
+  {
+    "type": "string",
+    "defaultValue": "",
+    "description": "The environment to deploy",
+    "name": "environment"
+  },
+  {
+    "type": "string",
+    "defaultValue": "",
+    "description": "The chart version",
+    "name": "chartVersion"
+  },
+  {
+    "type": "string",
+    "defaultValue": "",
+    "description": "The path of values file (e.g. release/values.yaml)",
+    "name": "valuesFilePath"
+  }
+ ],
+ "pipeline": {
+  "appConfig": {},
+  "application": "demo",
+  "id": "e2e887f0-96cc-485a-9699-4414b96ac1a6",
+  "index": 0,
+  "keepWaitingPipelines": false,
+  "lastModifiedBy": "anonymous",
+  "limitConcurrent": true,
+  "name": "Deploy to ${ templateVariables.environment }",
+  "parameterConfig": [],
+  "spelEvaluator": "v4",
+  "stages": [
+   {
+    "account": "spinnaker",
+    "cloudProvider": "kubernetes",
+    "completeOtherBranchesThenFail": false,
+    "continuePipeline": true,
+    "failPipeline": false,
+    "manifestArtifactId": "d8ebb0d7-a5f7-46de-a6a5-6b0cc22ef052",
+    "manifests": [
+     {
+      "apiVersion": "apps/v1",
+      "kind": "Deployment",
+      "metadata": {
+       "name": "nginx",
+       "namespace": "default"
+      },
+      "spec": {
+       "selector": {
+        "matchLabels": {
+         "app": "nginx"
+        }
+       },
+       "template": {
+        "metadata": {
+         "labels": {
+          "app": "nginx"
+         }
+        },
+        "spec": {
+         "containers": [
+          {
+           "image": "nginx:1.22",
+           "name": "nginx",
+           "ports": [
+            {
+             "containerPort": 80
+            }
+           ],
+           "resources": {
+            "limits": {
+             "cpu": "100m",
+             "memory": "128Mi"
+            }
+           }
+          }
+         ]
+        }
+       }
+      }
+     }
+    ],
+    "moniker": {
+     "app": "demo"
+    },
+    "name": "Deploy (Manifest)",
+    "refId": "2",
+    "requisiteStageRefIds": [
+     "7"
+    ],
+    "skipExpressionEvaluation": false,
+    "source": "artifact",
+    "stageTimeoutMs": 60000,
+    "trafficManagement": {
+     "enabled": false,
+     "options": {
+      "enableTraffic": false,
+      "services": []
+     }
+    },
+    "type": "deployManifest"
+   },
+   {
+    "completeOtherBranchesThenFail": false,
+    "continuePipeline": false,
+    "failPipeline": true,
+    "name": "Check Success",
+    "preconditions": [
+     {
+      "context": {
+       "stageName": "Deploy (Manifest)",
+       "stageStatus": "SUCCEEDED"
+      },
+      "failPipeline": false,
+      "type": "stageStatus"
+     }
+    ],
+    "refId": "3",
+    "requisiteStageRefIds": [
+     "2"
+    ],
+    "type": "checkPreconditions"
+   },
+   {
+    "name": "Check Failure",
+    "preconditions": [
+     {
+      "context": {
+       "stageName": "Deploy (Manifest)",
+       "stageStatus": "FAILED_CONTINUE"
+      },
+      "failPipeline": false,
+      "type": "stageStatus"
+     }
+    ],
+    "refId": "4",
+    "requisiteStageRefIds": [
+     "2"
+    ],
+    "type": "checkPreconditions"
+   },
+   {
+    "alias": "preconfiguredWebhook",
+    "name": "Update Deployment Success",
+    "parameterValues": {
+     "deployment_id": "${ trigger['payload']['deployment']['id'] }",
+     "description": "Finish to deploy successfully",
+     "owner": "${ templateVariables.owner }",
+     "repo": "${ templateVariables.repo }",
+     "state": "success"
+    },
+    "refId": "5",
+    "requisiteStageRefIds": [
+     "3"
+    ],
+    "statusUrlResolution": "getMethod",
+    "type": "updateDeploymentStatus"
+   },
+   {
+    "alias": "preconfiguredWebhook",
+    "name": "Update Deployment Failure",
+    "parameterValues": {
+     "deployment_id": "${ trigger['payload']['deployment']['id'] }",
+     "description": "Failed to deploy",
+     "owner": "${ templateVariables.owner }",
+     "repo": "${ templateVariables.repo }",
+     "state": "failure"
+    },
+    "refId": "6",
+    "requisiteStageRefIds": [
+     "4"
+    ],
+    "statusUrlResolution": "getMethod",
+    "type": "updateDeploymentStatus"
+   },
+   {
+    "expectedArtifacts": [
+     {
+      "defaultArtifact": {
+       "customKind": true,
+       "id": "dd7f632c-7eb5-4ad9-af54-43e77af986de"
+      },
+      "displayName": "thin-pig-37",
+      "id": "50d838f7-54b7-4aaf-b922-d0b84e6b43a1",
+      "matchArtifact": {
+       "artifactAccount": "embedded-artifact",
+       "customKind": false,
+       "id": "852d0c38-abe6-470c-9c1b-b0cdaae1334f",
+       "type": "embedded/base64"
+      },
+      "useDefaultArtifact": false,
+      "usePriorArtifact": false
+     }
+    ],
+    "inputArtifacts": [
+     {
+      "account": "helm-demo",
+      "artifact": {
+       "artifactAccount": "helm-demo",
+       "id": "b50903e0-a991-4661-b129-4a6f727e3b16",
+       "name": "gitploy",
+       "type": "helm/chart",
+       "version": "${ templateVariables.chartVersion }"
+      }
+     },
+     {
+      "account": "github-demo",
+      "artifact": {
+       "artifactAccount": "github-demo",
+       "id": "2ed72052-54dd-4053-9ac4-ef037d6c5175",
+       "name": "${ templateVariables.valuesFilePath }",
+       "reference": "https://api.github.com/repos/${ templateVariables.owner }/${ templateVariables.repo }/contents/${ templateVariables.valuesFilePath }",
+       "type": "github/file",
+       "version": "${ trigger['payload']['deployment']['sha']  }"
+      }
+     }
+    ],
+    "name": "Bake (Manifest)",
+    "namespace": "default",
+    "outputName": "spinnaker-demo",
+    "overrides": {
+     "image.tag": "${ trigger['payload']['deployment']['sha']  }"
+    },
+    "refId": "7",
+    "requisiteStageRefIds": [],
+    "templateRenderer": "HELM3",
+    "type": "bakeManifest"
+   },
+   {
+    "alias": "preconfiguredWebhook",
+    "name": "Update Deployment status",
+    "parameterValues": {
+     "description": "Spinnaker starts to deploy",
+     "state": "in_progress"
+    },
+    "refId": "8",
+    "requisiteStageRefIds": [
+     "7"
+    ],
+    "statusUrlResolution": "getMethod",
+    "type": "updateDeploymentStatus"
+   }
+  ],
+  "triggers": [
+   {
+    "enabled": true,
+    "payloadConstraints": {
+     "deployment.environment": "${ templateVariables.environment }",
+     "repository.full_name": "${ templateVariables.owner }/${ templateVariables.repo }"
+    },
+    "source": "demo",
+    "type": "webhook"
+   }
+  ],
+  "updateTs": "1640823631000"
+ }
+}
