@@ -1,7 +1,8 @@
 {
- "id": "deployTemplate",
+ "id": "deployTemplateV2",
+ "protect": false,
  "metadata": {
-  "name": "Deploy V1",
+  "name": "Deploy V2",
   "description": "Deploy to Kubernetes.",
   "owner": "noah.lee@gitploy.io",
   "scopes": ["global"]
@@ -57,50 +58,8 @@
     "completeOtherBranchesThenFail": false,
     "continuePipeline": true,
     "failPipeline": false,
-    "manifestArtifactId": "d8ebb0d7-a5f7-46de-a6a5-6b0cc22ef052",
-    "manifests": [
-     {
-      "apiVersion": "apps/v1",
-      "kind": "Deployment",
-      "metadata": {
-       "name": "nginx",
-       "namespace": "default"
-      },
-      "spec": {
-       "selector": {
-        "matchLabels": {
-         "app": "nginx"
-        }
-       },
-       "template": {
-        "metadata": {
-         "labels": {
-          "app": "nginx"
-         }
-        },
-        "spec": {
-         "containers": [
-          {
-           "image": "nginx:1.22",
-           "name": "nginx",
-           "ports": [
-            {
-             "containerPort": 80
-            }
-           ],
-           "resources": {
-            "limits": {
-             "cpu": "100m",
-             "memory": "128Mi"
-            }
-           }
-          }
-         ]
-        }
-       }
-      }
-     }
-    ],
+    "manifestArtifactId": "50d838f7-54b7-4aaf-b922-d0b84e6b43a1",
+    "manifests": [],
     "moniker": {
      "app": "demo"
     },
@@ -201,12 +160,13 @@
        "customKind": true,
        "id": "dd7f632c-7eb5-4ad9-af54-43e77af986de"
       },
-      "displayName": "thin-pig-37",
+      "displayName": "Artifact",
       "id": "50d838f7-54b7-4aaf-b922-d0b84e6b43a1",
       "matchArtifact": {
        "artifactAccount": "embedded-artifact",
        "customKind": false,
        "id": "852d0c38-abe6-470c-9c1b-b0cdaae1334f",
+       "name": "artifact",
        "type": "embedded/base64"
       },
       "useDefaultArtifact": false,
@@ -219,7 +179,7 @@
       "artifact": {
        "artifactAccount": "helm-demo",
        "id": "b50903e0-a991-4661-b129-4a6f727e3b16",
-       "name": "gitploy",
+       "name": "spinnaker-demo",
        "type": "helm/chart",
        "version": "${ templateVariables.chartVersion }"
       }
@@ -229,7 +189,7 @@
       "artifact": {
        "artifactAccount": "github-demo",
        "id": "2ed72052-54dd-4053-9ac4-ef037d6c5175",
-       "name": "${ templateVariables.valuesFilePath }",
+       "name": "release/values.yaml",
        "reference": "https://api.github.com/repos/${ templateVariables.owner }/${ templateVariables.repo }/contents/${ templateVariables.valuesFilePath }",
        "type": "github/file",
        "version": "${ trigger['payload']['deployment']['sha']  }"
@@ -238,9 +198,9 @@
     ],
     "name": "Bake (Manifest)",
     "namespace": "default",
-    "outputName": "spinnaker-demo",
+    "outputName": "${ templateVariables.repo }",
     "overrides": {
-     "image.tag": "${ trigger['payload']['deployment']['sha']  }"
+     "tag": "${ trigger['payload']['deployment']['sha']  }"
     },
     "refId": "7",
     "requisiteStageRefIds": [],
@@ -251,7 +211,10 @@
     "alias": "preconfiguredWebhook",
     "name": "Update Deployment status",
     "parameterValues": {
+     "deployment_id": "${ trigger['payload']['deployment']['id'] }",
      "description": "Spinnaker starts to deploy",
+     "owner": "${ templateVariables.owner }",
+     "repo": "${ templateVariables.repo }",
      "state": "in_progress"
     },
     "refId": "8",
@@ -269,10 +232,10 @@
      "deployment.environment": "${ templateVariables.environment }",
      "repository.full_name": "${ templateVariables.owner }/${ templateVariables.repo }"
     },
-    "source": "demo",
+    "source": "app",
     "type": "webhook"
    }
   ],
-  "updateTs": "1640823631000"
+  "updateTs": "1640829328000"
  }
 }

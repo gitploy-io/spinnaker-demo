@@ -4,3 +4,5 @@ envs:
     auto_merge: false
     # To avoid the context verification.
     # required_context: []
+  - name: production
+    auto_merge: false
