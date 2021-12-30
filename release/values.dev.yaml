@@ -1,4 +1,4 @@
-# Values for production environments
+# Values for the dev environment
 image:
   repository: nginx
   tag: 1.21
