@@ -5,7 +5,7 @@ webhook:
       enabled: true
       description: Update the deployment status.
       method: POST
-      url: https://api.github.com/repos/${ templateVariables.owner }/${ templateVariables.repo }/deployments/${ trigger["payload"]["deployment_id"]}/statuses
+      url: https://api.github.com/repos/${ parameterValues['owner'] }/${ parameterValues['repo'] }/deployments/${ parameterValues['deployment_id'] }/statuses
       customHeaders:
         # GitHub token
         Authorization:
@@ -19,6 +19,15 @@ webhook:
           "logUrl": "http://localhost:9000/#/applications/${execution.application}/executions/details/${execution.id}"
         }
       parameters:
+        - label: GitHub Owner
+          name: owner
+          type: string
+        - label: GitHub Repo
+          name: repo
+          type: string
+        - lable: GitHub Deployment ID
+          name: deployment_id
+          type: string
         - label: Description
           name: description
           type: string
