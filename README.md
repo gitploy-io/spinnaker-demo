@@ -1,8 +1,8 @@
 # Spinnaker Demo
 
-This repository shows you a demo of how to integrate with Spinnaker. It demonstrates that Spinnaker is listening for the event and deploys the application to a Kubernetes when Gitploy triggers a new deployment. 
-
 ![Demo](./docs/images/demo.gif)
+
+This repository shows you a demo of how to integrate with Spinnaker. It demonstrates that **Spinnaker is listening for the event and deploys the application to a Kubernetes when Gitploy triggers a new deployment.** 
 
 ## Step 0: Install Spinnaker
 
