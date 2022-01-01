@@ -6,11 +6,11 @@ This repository shows you a demo of how to integrate with Spinnaker. It demonstr
 
 ## Step 0: Install Spinnaker
 
-In this demo, we don't explain installing Spinnaker. But Armory provides the command-line tool [Minnaker] to get up and running in a few minutes.
+In this demo, we don't explain installing Spinnaker. But Armory provides the command-line tool [Minnaker](https://docs.armory.io/armory-enterprise/installation/minnaker/) to get up and running in a few minutes.
 
 ## Step 1: Configure Artifacts
 
-This demo build manifests with Helm chart, and it is called artifact, remote and deployable resources, in Spinnaker. And the Helm chart will be overridden for environments, respectively, by values files located under the `release` directory of this repository.
+This demo builds an artifact to deploy with Helm chart, one of Kubernetes template engines. And the Helm chart will be overridden for environments, respectively, by values files located under the `release` directory of this repository. To read the Helm chart and values files, we must configure artifacts.
 
 [Configure Helm artifact](https://spinnaker.io/docs/setup/other_config/artifacts/helm/) with the `hal` command:
 
@@ -45,9 +45,9 @@ hal deploy apply
 
 ## Step 2: Add custom webhook
 
-As deploying to Kubernetes, Spinnaker has to update the deployment status by the [deployment API call](https://docs.github.com/en/rest/reference/deployments#create-a-deployment-status). Spinnaker provides a simple way to add [a custom stage](https://spinnaker.io/docs/guides/operator/custom-webhook-stages/) instead of extending through codes. And stages typically make quick API calls to an external system as part of a pipeline.
+As deploying to Kubernetes, Spinnaker has to update the deployment status by the [deployment API call](https://docs.github.com/en/rest/reference/deployments#create-a-deployment-status). Spinnaker provides a simple way to add [a custom stage](https://spinnaker.io/docs/guides/operator/custom-webhook-stages/) instead of extending through codes. Spinnaker can typically make deployment API calls as part of a pipeline by adding a custom stage.
 
-To create a custom webhook, you have to add the [configuration](./spinnaker/.hal/default/profiles/orca-local.yml) for the stage in `orca-local.yml` located in `~/.hal/default/profiles`. *Note that you should modify the `GITHUB_TOKEN` string into your token.
+To create a custom webhook, you must add the [configuration](./spinnaker/.hal/default/profiles/orca-local.yml) for the stage in `orca-local.yml` located in `~/.hal/default/profiles`. *Note that you should modify the `GITHUB_TOKEN` string into your token.
 
 After locating the `orca-local.yml`, deploy it in the `halyard-0` pod(i.e. `hal deploy apply`). Then you can find a new stage in your pipeline.
 
@@ -55,7 +55,7 @@ After locating the `orca-local.yml`, deploy it in the `halyard-0` pod(i.e. `hal 
 
 ## Step 3: Add a pipeline from the pipeline template
 
-Pipeline template is a amazing feature to share with your teams within a single application, across different applications. We'll save the pipeline template by the [spin](https://spinnaker.io/docs/guides/spin/) CLI. If you haven't already done so, you have to install the spin CLI.
+Pipeline template is a amazing feature to share with your teams within a single application, across different applications. In this demo, we'll create a pipeline from the [pipeline template](./spinnaker/pipeline-template/deploy.json). You have to install the [spin](https://spinnaker.io/docs/guides/spin/) CLI, if you haven't already done.
 
 To enable pipeline template:
 
@@ -70,7 +70,7 @@ And save the [pipeline template](./spinnaker/pipeline-template/deploy.json):
 spin pipeline-templates save --file spinnaker/pipeline-template/deploy.json
 ```
 
-Now you can find the pipeline template in the "Pipeline Template" tab, click the "Create pipeline" and configures variables like below:
+Now you can find the pipeline template in the "Pipeline Template" tab. You just click the "Create pipeline" button and configures variables like below:
 
 ![Pipeline Template Tab](./docs/images/pipeline-template-tab.png)
 
