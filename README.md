@@ -78,4 +78,12 @@ Now you can find the pipeline template in the "Pipeline Template" tab, click the
 
 ## Step 4: Add a GitHub webhook
 
+Now, everything is ready. To trigger the pipeline, you have to [create a organization webhook](https://docs.github.com/en/developers/webhooks-and-events/webhooks/creating-webhooks) and set up the webhook. First of all, we need to expose our local development environment to the internet. [ngrok](https://ngrok.com/download) is a good option for it. You can expose the gate port to listen for events by running `ngrok http 8084`.
 
+```shell
+Forwarding    http://7e9ea9dc.ngrok.io -> 127.0.0.1:8084
+```
+
+The payload URL should be `http://GATE_HOST/api/v1/webhooks/webhook/app`. Then GitHub will dispatches events to pipelines, and Spinnaker determines to trigger a pipeline by constraints. And you configure the content-type `application/json`, select `deployment` in the events.
+
+Spinnaker trigger the pipeline when you deploy a specific `ref` in Gitploy, and you can follow the deployment status at a glance.
