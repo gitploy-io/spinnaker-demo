@@ -14,7 +14,7 @@ In this demo, we don't explain installing Spinnaker. But Armory provides the com
 
 ## Step 1: Configure Artifacts
 
-This demo builds an artifact to deploy with Helm chart, one of Kubernetes template engines. And the Helm chart will be overridden for environments, respectively, by values files located under the `release` directory of this repository. To read the Helm chart and values files, we must configure artifacts.
+This demo builds manifests for Kubernetes with Helm chart, one of Kubernetes template engines. And the Helm chart will be overridden for environments, respectively, by values files located under the `release` directory of this repository. To read the Helm chart and values files, I've configured artifacts.
 
 [Configure Helm artifact](https://spinnaker.io/docs/setup/other_config/artifacts/helm/) with the `hal` command:
 
@@ -38,7 +38,6 @@ hal config artifact github enable
 hal config artifact github add \
     --token YOUR_TOKEN \
     github-demo
-
 ```
 
 Apply changes:
@@ -49,17 +48,19 @@ hal deploy apply
 
 ## Step 2: Add custom webhook
 
-As deploying to Kubernetes, Spinnaker has to update the deployment status by the [deployment API call](https://docs.github.com/en/rest/reference/deployments#create-a-deployment-status). Spinnaker provides a simple way to add [a custom stage](https://spinnaker.io/docs/guides/operator/custom-webhook-stages/) instead of extending through codes. Spinnaker can typically make deployment API calls as part of a pipeline by adding a custom stage.
+While deploying to Kubernetes, Spinnaker has to update the deployment status by the [deployment API call](https://docs.github.com/en/rest/reference/deployments#create-a-deployment-status). Spinnaker provides a simple way to add [a custom stage](https://spinnaker.io/docs/guides/operator/custom-webhook-stages/) instead of extending through codes. Spinnaker can typically make API calls as part of a pipeline by adding a custom stage.
 
-To create a custom webhook, you must add the [configuration](./spinnaker/.hal/default/profiles/orca-local.yml) for the stage in `orca-local.yml` located in `~/.hal/default/profiles`. *Note that you should modify the `GITHUB_TOKEN` string into your token.
+To create a custom webhook, I had to add the [configuration](./spinnaker/.hal/default/profiles/orca-local.yml) for the stage in `orca-local.yml` located in `~/.hal/default/profiles`. The custom stage has a few variables, `owner`, `repo`, `deployment_id`, `description`, and `state`, for updating the deployment status. 
 
 After locating the `orca-local.yml`, deploy it in the `halyard-0` pod(i.e. `hal deploy apply`). Then you can find a new stage in your pipeline.
+
+*Note that you must modify the `GITHUB_TOKEN` string into your token if you copy the file.*
 
 ![Custom Webhook](./docs/images/custom-webhook.png)
 
 ## Step 3: Add a pipeline from the pipeline template
 
-Pipeline template is a amazing feature to share with your teams within a single application, across different applications. In this demo, we'll create a pipeline from the [pipeline template](./spinnaker/pipeline-template/deploy.json). You have to install the [spin](https://spinnaker.io/docs/guides/spin/) CLI, if you haven't already done.
+Pipeline template is a fantastic feature to share with your teams within a single application, across different applications. We'll create a pipeline from the [pipeline template](./spinnaker/pipeline-template/deploy.json). You have to install the [spin](https://spinnaker.io/docs/guides/spin/) CLI, if you haven't already done.
 
 To enable pipeline template:
 
@@ -74,11 +75,24 @@ And save the [pipeline template](./spinnaker/pipeline-template/deploy.json):
 spin pipeline-templates save --file spinnaker/pipeline-template/deploy.json
 ```
 
-Now you can find the pipeline template in the "Pipeline Template" tab. You just click the "Create pipeline" button and configures variables like below:
-
-![Pipeline Template Tab](./docs/images/pipeline-template-tab.png)
+Now you can find the pipeline template in the "Pipeline Template" tab. You click the "Create pipeline" button and configures variables like below:
 
 ![Pipeline Template](./docs/images/pipeline-template.png)
+
+The pipeline consists of these stages: trigger, bake, deploy, and update status. The type of trigger is webhook listening for deployment events, and the constraints verifying repository and environment determine if triggered or not. 
+
+```json
+"payloadConstraints": {
+ "deployment.environment": "${ templateVariables.environment }",
+ "repository.full_name": "${ templateVariables.owner }/${ templateVariables.repo }"
+},
+```
+
+The bake stage fetches artifacts and builds manifests to pass to the next step. The deploy stage deploys it to Kubernetes.
+
+After deploying, Spinnaker updates the deployment status by the custom webhook. The thing is, I've used the [pipeline expression](https://spinnaker.io/docs/reference/pipeline/expressions/) to get the deployment id from the event payload during pipeline execution like `${trigger['payload']['deployment']['id']}`. It let the stage know which deployment to be updated.
+
+![Pipeline Template](./docs/images/pipeline.png)
 
 ## Step 4: Add a GitHub webhook
 
