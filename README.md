@@ -94,7 +94,7 @@ webhook:
           description: The state can be one of "queued", "in_progress", "success", "failure"
 ```
 
-</details></br>
+</details>
 
 :warning: You should replace `GITHUB_TOKEN` with a Github token with `repo` permission.
 
