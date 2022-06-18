@@ -332,4 +332,4 @@ Forwarding    http://7e9ea9dc.ngrok.io -> 127.0.0.1:8084
 The payload URL should be `http://GATE_HOST/api/v1/webhooks/webhook/app`. And you have to select `application/json` for the content type and `deployment` for the events.
 
 ## Questions
-If you have any questions, please leave them in the [issues](https://github.com/gitploy-io/spinnaker-demo/issues).
+If you have any questions, please leave them in the [community](https://github.com/gitploy-io/gitploy/discussions).
